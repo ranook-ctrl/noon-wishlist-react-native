@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Field Design System — light mode tokens */
+:root {
+  /* Surface */
+  --colour-surface-primary: #ffffff;
+  --colour-surface-secondary: #f9f9fb;
+  --colour-surface-tertiary: #f2f3f7;
+  --colour-surface-primary-inverted: #101628;
+  --colour-surface-action-bold: #0f7eff;
+  --colour-surface-action-subtle: #ebf4ff;
+  --colour-surface-overlay-subtle: rgba(0, 0, 0, 0.24);
+  /* Text */
+  --colour-text-primary: #1d2539;
+  --colour-text-secondary: #475067;
+  --colour-text-tertiary: #666d85;
+  --colour-text-muted: #989fb3;
+  --colour-text-action: #0f61ff;
+  --colour-text-success: #0f8857;
+  --colour-text-on-surface-bold: #ffffff;
+  /* Border */
+  --colour-border-primary: #eaecf0;
+  --colour-border-subtle: #f2f3f7;
+  --colour-border-bold: #d0d4dd;
+  --colour-border-action: #bddbff;
+  /* Alphas */
+  --alpha-dark-4: rgba(0, 0, 0, 0.04);
+  --alpha-light-16: rgba(255, 255, 255, 0.16);
+  /* Accent */
+  --neutral-white: #ffffff;
+  --crimson-400: #ff4869;
+  --pink-600: #f7306f;
+  --yellow-600: #f8b200;
+  --emerald-800: #115a56;
+
+  font-family: "Noontree", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: #e9ebf0;
+}
+
+@layer utilities {
+  /* iOS-style continuous corner (squircle). Stretches to any element size via mask. */
+  .corner-smooth-lg {
+    border-radius: 0;
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'><path d='M30,0 C8,0 0,8 0,30 L0,70 C0,92 8,100 30,100 L70,100 C92,100 100,92 100,70 L100,30 C100,8 92,0 70,0 Z' fill='black'/></svg>");
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'><path d='M30,0 C8,0 0,8 0,30 L0,70 C0,92 8,100 30,100 L70,100 C92,100 100,92 100,70 L100,30 C100,8 92,0 70,0 Z' fill='black'/></svg>");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+}
