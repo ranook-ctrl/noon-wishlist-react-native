@@ -36,7 +36,7 @@ export default function SkuCard({
   width = NATIVE_W,
   image = productImg,
   imageAlt,
-  imageSize = 142,
+  imageSize = 122,
   name = "Whirlpool 7 kg Magic Clean ",
   rating = "4.3",
   price = "899",
@@ -63,7 +63,7 @@ export default function SkuCard({
       }}
     >
       <div
-        className="absolute left-0 top-0 flex flex-col items-start gap-1 rounded-lg border-[0.5px] border-border-primary bg-surface-primary font-primary"
+        className="absolute left-0 top-0 flex flex-col items-start gap-1 rounded-lg bg-surface-primary font-primary"
         style={{
           width: NATIVE_W,
           height: NATIVE_H,
@@ -103,7 +103,7 @@ export default function SkuCard({
             type="button"
             aria-label="Add to wishlist"
             onClick={onWishlistToggle}
-            className="absolute left-[106px] top-[4px] flex items-center justify-center rounded-full bg-surface-primary p-1"
+            className="absolute left-[106px] top-[4px] flex items-center justify-center rounded-full bg-alpha-light-16 p-1"
           >
             <img src={heartIcon} alt="" aria-hidden className="block size-4" />
           </button>
@@ -133,7 +133,7 @@ export default function SkuCard({
               {name}
             </p>
             <div className="flex items-start gap-1">
-              <div className="flex items-center gap-0.5 rounded bg-surface-tertiary px-1 py-0.5">
+              <div className="flex items-center gap-0.5 rounded bg-alpha-dark-4 px-1 py-0.5">
                 <img
                   src={starIcon}
                   alt=""

@@ -11,6 +11,7 @@ export default {
         "surface-primary-inverted": "var(--colour-surface-primary-inverted)",
         "surface-action-bold": "var(--colour-surface-action-bold)",
         "surface-action-subtle": "var(--colour-surface-action-subtle)",
+        "surface-muted": "var(--colour-surface-muted)",
         "surface-overlay-subtle": "var(--colour-surface-overlay-subtle)",
         "neutral-white": "var(--neutral-white)",
         // Field DS — Text
@@ -20,6 +21,7 @@ export default {
         "text-muted": "var(--colour-text-muted)",
         "text-action": "var(--colour-text-action)",
         "text-success": "var(--colour-text-success)",
+        "text-error": "var(--colour-text-error)",
         "text-on-surface-bold": "var(--colour-text-on-surface-bold)",
         // Field DS — Border
         "border-primary": "var(--colour-border-primary)",
@@ -46,6 +48,10 @@ export default {
         b14: ["14px", { lineHeight: "18px", letterSpacing: "-0.1px" }],
         // Field DS — body/b16
         b16: ["16px", { lineHeight: "20px", letterSpacing: "-0.15px" }],
+        // Field DS — heading/h16
+        h16: ["16px", { lineHeight: "20px", letterSpacing: "-0.15px" }],
+        // Field DS — heading/h32
+        h32: ["32px", { lineHeight: "40px", letterSpacing: "-0.25px" }],
         // Field DS — label3
         l3: ["14px", { lineHeight: "18px", letterSpacing: "-0.14px" }],
         // Field DS — label4
