@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Retune } from "retune";
 import ProductList from "./components/ProductList";
 import CollectionDrawer from "./components/CollectionDrawer";
@@ -6,10 +6,24 @@ import type { SkuCardProps } from "./components/SkuCard";
 import topImg from "./assets/Top.png";
 import bottomImg from "./assets/Bottom.png";
 
+const DRAWER_TRANSITION_MS = 300;
+
 export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<SkuCardProps | null>(
     null,
   );
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+    const id = requestAnimationFrame(() => setIsOpen(true));
+    return () => cancelAnimationFrame(id);
+  }, [selectedProduct]);
+
+  const closeDrawer = () => {
+    setIsOpen(false);
+    setTimeout(() => setSelectedProduct(null), DRAWER_TRANSITION_MS);
+  };
 
   return (
     <>
@@ -26,10 +40,16 @@ export default function App() {
               <button
                 type="button"
                 aria-label="Close"
-                onClick={() => setSelectedProduct(null)}
-                className="absolute inset-0 bg-black/80"
+                onClick={closeDrawer}
+                className={`absolute inset-0 bg-black/80 transition-opacity duration-300 ${
+                  isOpen ? "opacity-100" : "opacity-0"
+                }`}
               />
-              <div className="relative">
+              <div
+                className={`relative transition-transform duration-300 ease-out ${
+                  isOpen ? "translate-y-0" : "translate-y-full"
+                }`}
+              >
                 <CollectionDrawer
                   product={{ image: selectedProduct.image }}
                 />
