@@ -1,3 +1,4 @@
+import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import airpodsImg from "../assets/product-card/airpods.png";
 import hpEtaImg from "../assets/product-card/hp-eta.png";
 import heartIcon from "../assets/product-card/heart.svg";
@@ -25,14 +26,19 @@ export type ProductCardProps = {
   listedPrice?: string;
   discount?: string;
   quantity?: number;
+  priceDropLabel?: string;
   onWishlistToggle?: () => void;
   onSelectToggle?: () => void;
+  onLongPress?: () => void;
   onAddToCart?: () => void;
   onIncrement?: () => void;
   onDecrement?: () => void;
   onShare?: () => void;
   className?: string;
 };
+
+const LONG_PRESS_MS = 450;
+const MOVE_CANCEL_PX = 10;
 
 function PageDots() {
   return (
@@ -71,7 +77,10 @@ function CheckboxControl({
       role="checkbox"
       aria-checked={checked}
       aria-label="Select product"
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
       className={
         "absolute right-[6px] top-[6px] flex size-7 items-center justify-center overflow-hidden rounded-lg " +
         (checked
@@ -192,8 +201,10 @@ export default function ProductCard({
   listedPrice = "1399",
   discount = "33%",
   quantity = 1,
+  priceDropLabel,
   onWishlistToggle,
   onSelectToggle,
+  onLongPress,
   onAddToCart,
   onIncrement,
   onDecrement,
@@ -203,23 +214,68 @@ export default function ProductCard({
   const showButtonsRow = variant === "default" || variant === "added-to-cart";
   const isCheckable = variant === "selected" || variant === "unselected";
 
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressStart = useRef<{ x: number; y: number } | null>(null);
+  const longPressFired = useRef(false);
+
+  function clearLongPress() {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+    longPressStart.current = null;
+  }
+
+  function handlePointerDown(e: ReactPointerEvent<HTMLDivElement>) {
+    if (!onLongPress) return;
+    longPressFired.current = false;
+    longPressStart.current = { x: e.clientX, y: e.clientY };
+    longPressTimer.current = setTimeout(() => {
+      longPressFired.current = true;
+      onLongPress();
+    }, LONG_PRESS_MS);
+  }
+
+  function handlePointerMove(e: ReactPointerEvent<HTMLDivElement>) {
+    if (!longPressStart.current) return;
+    const dx = Math.abs(e.clientX - longPressStart.current.x);
+    const dy = Math.abs(e.clientY - longPressStart.current.y);
+    if (dx > MOVE_CANCEL_PX || dy > MOVE_CANCEL_PX) clearLongPress();
+  }
+
+  function handleClick() {
+    if (longPressFired.current) {
+      longPressFired.current = false;
+      return;
+    }
+    if (isCheckable) onSelectToggle?.();
+  }
+
   return (
     <div
       data-variant={variant}
+      onClick={handleClick}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={clearLongPress}
+      onPointerLeave={clearLongPress}
+      onPointerCancel={clearLongPress}
+      role={isCheckable ? "button" : undefined}
+      tabIndex={isCheckable ? 0 : undefined}
       className={
-        "flex w-[164px] flex-col items-stretch overflow-hidden rounded-[12px] border-[0.75px] border-surface-tertiary bg-surface-primary font-primary " +
+        "flex w-[164px] flex-col items-stretch overflow-hidden rounded-[12px] border-[0.75px] border-surface-tertiary bg-surface-primary font-primary touch-manipulation select-none " +
+        (isCheckable ? "cursor-pointer " : "") +
         className
       }
     >
-      {/* Top container — image */}
-      <div className="relative w-full bg-surface-secondary" style={{ aspectRatio: "164 / 178.667" }}>
-        {/* Image (1:1 inside a 3:4 frame) */}
+      {/* Top container — image (3 : 4.1 frame, width 164 → height auto) */}
+      <div className="relative w-full bg-surface-secondary" style={{ aspectRatio: "3 / 4.1" }}>
+        {/* Image (1:1 inside a 3:4.1 frame) */}
         <div className="absolute left-1/2 top-1/2 h-full w-[99.39%] -translate-x-1/2 -translate-y-1/2 overflow-hidden">
           <img
             src={image}
             alt={imageAlt ?? name}
-            className="absolute left-1/2 top-1/2 aspect-square w-full max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
-            style={{ height: "87.5%", width: "auto" }}
+            className="absolute inset-0 h-full w-full object-contain"
           />
         </div>
 
@@ -232,6 +288,14 @@ export default function ProductCard({
           />
         ) : (
           <HeartButton onClick={onWishlistToggle} />
+        )}
+
+        {priceDropLabel && (
+          <div className="absolute left-0 top-0 flex h-5 items-center rounded-br-lg border-b-[1.5px] border-black/50 bg-emerald-800 px-1.5 py-0.5">
+            <span className="whitespace-nowrap font-primary text-b12 font-semibold text-text-on-surface-bold">
+              {priceDropLabel}
+            </span>
+          </div>
         )}
       </div>
 

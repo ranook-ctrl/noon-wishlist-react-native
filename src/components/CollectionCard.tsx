@@ -80,16 +80,18 @@ export default function CollectionCard({
         className="absolute left-1/2 top-0 h-1 w-6 -translate-x-1/2 rounded-b-md bg-border-bold shadow-[0px_4px_32px_32px_#ffffff]"
       />
 
-      <div className="relative h-[68px] w-[102px] shrink-0">
+      <div className="relative flex h-[68px] w-[102px] shrink-0 items-center justify-center">
         {assets.back ? (
-          <div className="absolute left-[33px] top-[1px] flex size-[66.42px] items-center justify-center">
+          <div className="order-3 -ml-[50px] flex size-[66.42px] items-center justify-center">
             <Mini56 image={assets.back} tiltClass="rotate-12" />
           </div>
         ) : null}
-        <div className="absolute left-[1px] top-[1px] flex size-[66.42px] items-center justify-center">
-          <Mini56 image={assets.middle} tiltClass="-rotate-12" />
-        </div>
-        <div className="absolute left-[19px] top-[2px]">
+        {assets.middle ? (
+          <div className="order-1 flex size-[66.42px] items-center justify-center">
+            <Mini56 image={assets.middle} tiltClass="-rotate-12" />
+          </div>
+        ) : null}
+        <div className={"order-2 " + (assets.middle ? "-ml-[48.42px]" : "")}>
           <Mini64 image={assets.front} />
         </div>
       </div>
