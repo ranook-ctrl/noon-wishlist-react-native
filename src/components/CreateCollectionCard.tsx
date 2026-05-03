@@ -26,6 +26,10 @@ type Props = {
   onTextFocus?: () => void;
   /** Fires when the inner textarea loses focus. */
   onTextBlur?: () => void;
+  /** Existing collection names (case-insensitive) — used for duplicate detection. */
+  duplicateNames?: string[];
+  /** Called when the user taps the Create Collection button with a valid name. */
+  onSubmit?: (name: string) => void;
 };
 
 const TOTAL_GRID_CELLS = 88;
@@ -116,11 +120,18 @@ function MasterSwatch({ kind }: { kind: "airpods" | "bookmark" }) {
   );
 }
 
-function CreateButton({ enabled }: { enabled: boolean }) {
+function CreateButton({
+  enabled,
+  onClick,
+}: {
+  enabled: boolean;
+  onClick?: () => void;
+}) {
   return (
     <button
       type="button"
       disabled={!enabled}
+      onClick={enabled ? onClick : undefined}
       className={`relative flex h-[56px] w-full shrink-0 items-center justify-center gap-[8px] rounded-[12px] border-0 px-[24px] py-[16px] font-primary text-h16 ${
         enabled
           ? "bg-surface-action-bold font-bold text-text-on-surface-bold"
@@ -200,6 +211,8 @@ export default function CreateCollectionCard({
   fullWidth = false,
   onTextFocus,
   onTextBlur,
+  duplicateNames,
+  onSubmit,
 }: Props) {
   const c = VARIANT_CONFIG[variant];
   const [value, setValue] = useState(c.initialValue);
@@ -231,13 +244,19 @@ export default function CreateCollectionCard({
     setAtLimit(!fitsInTwoLines(value + "M"));
   }, [value, fitsInTwoLines]);
 
-  const errorMessage = c.duplicateName
+  const trimmed = value.trim();
+  const isLiveDuplicate =
+    trimmed.length > 0 &&
+    !!duplicateNames?.some(
+      (n) => n.toLowerCase() === trimmed.toLowerCase(),
+    );
+  const errorMessage = c.duplicateName || isLiveDuplicate
     ? "Collection with this name already exists!"
     : atLimit
       ? "Character limit reached"
       : null;
 
-  const buttonEnabled = value.trim().length > 0;
+  const buttonEnabled = trimmed.length > 0 && !isLiveDuplicate;
 
   return (
     <div
@@ -271,7 +290,10 @@ export default function CreateCollectionCard({
         </div>
       </div>
 
-      <CreateButton enabled={buttonEnabled} />
+      <CreateButton
+        enabled={buttonEnabled}
+        onClick={() => onSubmit?.(trimmed)}
+      />
     </div>
   );
 }
