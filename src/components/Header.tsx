@@ -69,7 +69,7 @@ export default function Header({ onBack, onCreate }: WishlistHeaderProps) {
   return (
     <div className="relative flex w-full flex-col items-stretch bg-gradient-to-b from-white from-40% to-white/0 font-primary">
       <StatusBar />
-      <div className="flex h-14 w-full items-center gap-3 px-4 py-2">
+      <div className="flex h-14 w-full items-center gap-5 px-4 py-2">
         <button
           type="button"
           aria-label="Back"

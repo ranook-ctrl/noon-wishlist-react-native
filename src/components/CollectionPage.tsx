@@ -50,9 +50,18 @@ export type CollectionPageProps = {
   variant?: CollectionPageVariant;
   title?: string;
   itemCount?: number;
+  /** Explicit product list to render. If omitted, falls back to the
+   *  built-in demo slice (productCount/productOffset). */
+  products?: CollectionProduct[];
+  /** How many demo products to render when products is not provided. */
+  productCount?: number;
+  /** Where to start slicing the demo product list. Default: 0. */
+  productOffset?: number;
+  /** Override the back-button behaviour (default: navigate to /wishlist.html). */
+  onBack?: () => void;
 };
 
-type CardData = {
+export type CollectionProduct = {
   id: string;
   image: string;
   name: string;
@@ -63,6 +72,8 @@ type CardData = {
   discount: string;
   priceDropLabel?: string;
 };
+
+type CardData = CollectionProduct;
 
 type CardState = {
   data: CardData;
@@ -91,8 +102,8 @@ const PRODUCTS: CardData[] = [
   { id: "p16", image: sneakerBlackImg, name: "New Balance 990v6 Made in USA Sneakers", rating: 4.8, ratingCount: 392, sellingPrice: "1199", listedPrice: "1499", discount: "20%" },
 ];
 
-function makeInitial(): CardState[] {
-  return PRODUCTS.map((data) => ({
+function makeInitial(products: CardData[]): CardState[] {
+  return products.map((data) => ({
     data,
     cartVariant: "default",
     quantity: 1,
@@ -101,15 +112,27 @@ function makeInitial(): CardState[] {
   }));
 }
 
+function sliceProducts(offset: number | undefined, count: number | undefined) {
+  const start = offset ?? 0;
+  const end = count === undefined ? PRODUCTS.length : start + count;
+  return PRODUCTS.slice(start, end);
+}
+
 export default function CollectionPage({
   variant = "default",
   title,
   itemCount,
+  products,
+  productCount,
+  productOffset,
+  onBack,
 }: CollectionPageProps) {
   const isEmpty = variant === "empty";
   const resolvedTitle = title ?? (isEmpty ? "Earphones" : "Arushi’s birthday");
 
-  const [cards, setCards] = useState<CardState[]>(makeInitial);
+  const [cards, setCards] = useState<CardState[]>(() =>
+    makeInitial(products ?? sliceProducts(productOffset, productCount)),
+  );
   const [selectMode, setSelectMode] = useState(false);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -136,6 +159,10 @@ export default function CollectionPage({
 
   function handleBack() {
     if (leaving) return;
+    if (onBack) {
+      onBack();
+      return;
+    }
     setLeaving(true);
     setTimeout(() => {
       window.location.href = "/wishlist.html";

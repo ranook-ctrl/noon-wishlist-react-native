@@ -183,6 +183,24 @@ body {
   }
 }
 
+@keyframes scene-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes scene-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 @layer utilities {
   /* iOS-style continuous corner (squircle). Stretches to any element size via mask. */
   .corner-smooth-lg {
