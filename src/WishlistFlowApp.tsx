@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Retune } from "retune";
 
 import Header from "./components/Header";
@@ -74,6 +75,7 @@ type ToastItem = {
   variant: ToastVariant;
   image: string;
   destination?: string;
+  suffix?: string;
   meta?: string;
   link?: string;
   onAction?: () => void;
@@ -896,6 +898,9 @@ export default function WishlistFlowApp() {
 
     if (savedSet.has(productId)) {
       // §6.1: full deletion + Undo
+      const prevMembership = membership[productId]
+        ? new Set(membership[productId])
+        : new Set<CollectionId>();
       setSavedSet((prev) => {
         const next = new Set(prev);
         next.delete(productId);
@@ -912,8 +917,11 @@ export default function WishlistFlowApp() {
         image: product.image,
         destination: "Wishlist",
         onAction: () => {
-          // Undo: restore
           setSavedSet((prev) => new Set(prev).add(productId));
+          setMembership((prev) => ({
+            ...prev,
+            [productId]: new Set(prevMembership),
+          }));
         },
       });
       return;
@@ -946,6 +954,10 @@ export default function WishlistFlowApp() {
 
     if (!allItemsKept) {
       // PRD 6.2: unchecking All Items = full deletion
+      const wasSaved = savedSet.has(productId);
+      const prevMembership = membership[productId]
+        ? new Set(membership[productId])
+        : new Set<CollectionId>();
       setSavedSet((prev) => {
         const n = new Set(prev);
         n.delete(productId);
@@ -960,6 +972,15 @@ export default function WishlistFlowApp() {
         variant: "removed",
         image: product.image,
         destination: "Wishlist",
+        onAction: () => {
+          if (wasSaved) {
+            setSavedSet((prev) => new Set(prev).add(productId));
+          }
+          setMembership((prev) => ({
+            ...prev,
+            [productId]: new Set(prevMembership),
+          }));
+        },
       });
       return;
     }
@@ -978,13 +999,15 @@ export default function WishlistFlowApp() {
         onLink: () => setScene("landing"),
       });
     } else {
-      // §3.2 — toast for last selected collection (demo)
+      // §3.2 — toast for last selected collection; if multiple, append "+n"
       const lastId = Array.from(selected).pop()!;
       const coll = collections.find((c) => c.id === lastId);
+      const extra = selected.size - 1;
       pushToast({
         variant: "saved-collection",
         image: product.image,
         destination: coll?.name ?? "Collection",
+        suffix: extra > 0 ? `+${extra}` : undefined,
         link: "View Collection",
         onAction: () => openSaveDrawer(productId),
         onLink: () => {
@@ -1164,27 +1187,42 @@ export default function WishlistFlowApp() {
     : null;
 
   // ----- Toast renderer used by every scene -----
-  const toastsLayer =
-    toasts.length === 0 ? null : (
-      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-[60] flex flex-col items-center gap-2 px-2">
+  const renderToasts = (bottomClass = "bottom-6") => (
+    <div
+      className={`pointer-events-none absolute inset-x-0 ${bottomClass} z-[60] flex flex-col items-center gap-2 px-2`}
+    >
+      <AnimatePresence>
         {toasts.map((t) => (
-          <div
+          <motion.div
             key={t.id}
-            className="pointer-events-auto animate-[toast-slide-up_300ms_ease-out_forwards]"
+            className="pointer-events-auto relative"
+            initial={{ y: "140%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "140%", opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <ToastCard
-              variant={t.variant}
-              image={t.image}
-              destination={t.destination}
-              meta={t.meta}
-              link={t.link}
-              onAction={t.onAction}
-              onLink={t.onLink}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-3 bg-gradient-to-b from-black/0 to-black/20"
             />
-          </div>
+            <div className="relative">
+              <ToastCard
+                variant={t.variant}
+                image={t.image}
+                destination={t.destination}
+                suffix={t.suffix}
+                meta={t.meta}
+                link={t.link}
+                onAction={t.onAction}
+                onLink={t.onLink}
+              />
+            </div>
+          </motion.div>
         ))}
-      </div>
-    );
+      </AnimatePresence>
+    </div>
+  );
+  const toastsLayer = renderToasts();
 
   // ----- Persistent cart toast (slides up once, stays mounted) -----
   // The slide-up animation runs once when the element first mounts (i.e., on
@@ -1535,6 +1573,7 @@ export default function WishlistFlowApp() {
                         ? "Best Seller"
                         : undefined
                     }
+                    saved={savedSet.has(p.id)}
                     onWishlistToggle={() => handleWishlistToggle(p.id)}
                   />
                 ))}
@@ -1543,7 +1582,7 @@ export default function WishlistFlowApp() {
             <img src={bottomImg} alt="" className="block w-full shrink-0" />
           </div>
           {drawerLayer}
-          {toastsLayer}
+          {renderToasts("bottom-[108px]")}
         </div>
       );
       break;

@@ -12,6 +12,7 @@ export type ToastCardProps = {
   image?: string;
   imageAlt?: string;
   destination?: string;
+  suffix?: string;
   meta?: string;
   link?: string;
   onAction?: () => void;
@@ -22,6 +23,7 @@ export type ToastCardProps = {
 type Resolved = {
   prefix: string;
   destination: string;
+  suffix?: string;
   meta?: string;
   link?: string;
   action: string;
@@ -60,6 +62,7 @@ function resolve(variant: ToastVariant, p: ToastCardProps): Resolved {
       return {
         prefix: "Saved to ",
         destination: p.destination ?? "Arushi’s Birthday",
+        suffix: p.suffix,
         link: p.link ?? "View Collection",
         action: "Change",
       };
@@ -115,6 +118,9 @@ function ToastBody({
           <p className="text-b16 text-text-primary">
             {content.prefix}
             <span className="font-semibold">{content.destination}</span>
+            {content.suffix && (
+              <span className="font-semibold"> {content.suffix}</span>
+            )}
           </p>
           {content.meta && (
             <p className="truncate text-b12 tracking-[-0.1px] text-text-tertiary">

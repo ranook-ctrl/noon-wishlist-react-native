@@ -2,6 +2,7 @@ import productImg from "../assets/sku/product.png";
 import expressImg from "../assets/sku/express.png";
 import expressTodayImg from "../assets/sku/express-today.png";
 import heartIcon from "../assets/sku/heart.svg";
+import heartFilledIcon from "../assets/product-card/heart.svg";
 import plusIcon from "../assets/sku/plus.svg";
 import starIcon from "../assets/sku/star.svg";
 import truckIcon from "../assets/sku/truck.svg";
@@ -19,6 +20,7 @@ export type SkuCardProps = {
   discount?: string;
   badge?: string;
   expressVariant?: SkuExpressVariant;
+  saved?: boolean;
   onWishlistToggle?: () => void;
   onAddToCart?: () => void;
 };
@@ -26,7 +28,6 @@ export type SkuCardProps = {
 export default function SkuCard({
   image = productImg,
   imageAlt,
-  imageSize = 122,
   name = "Whirlpool 7 kg Magic Clean ",
   rating = "4.3",
   price = "899",
@@ -34,6 +35,7 @@ export default function SkuCard({
   discount = "33%",
   badge,
   expressVariant = "default",
+  saved = false,
   onWishlistToggle,
   onAddToCart,
 }: SkuCardProps) {
@@ -46,8 +48,7 @@ export default function SkuCard({
         <img
           src={image}
           alt={imageAlt ?? name}
-          className="max-w-none object-cover"
-          style={{ width: imageSize, height: imageSize }}
+          className="block h-full w-full object-cover"
         />
 
         {badge && (
@@ -60,11 +61,17 @@ export default function SkuCard({
 
         <button
           type="button"
-          aria-label="Add to wishlist"
+          aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={saved}
           onClick={onWishlistToggle}
           className="absolute left-[106px] top-[4px] flex items-center justify-center rounded-full bg-alpha-light-16 p-1"
         >
-          <img src={heartIcon} alt="" aria-hidden className="block size-4" />
+          <img
+            src={saved ? heartFilledIcon : heartIcon}
+            alt=""
+            aria-hidden
+            className="block size-4"
+          />
         </button>
 
         <button
